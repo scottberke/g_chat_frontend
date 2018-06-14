@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Cable from 'actioncable';
-import { Signup } from './Signup'
 import { Bootstrap, Grid, Row, Col } from 'react-bootstrap';
 
 export class Login extends Component {
