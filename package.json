@@ -2,7 +2,6 @@
   "name": "g_chat_front_end",
   "version": "0.1.0",
   "private": true,
-  
   "dependencies": {
     "actioncable": "^5.2.0",
     "package.json": "^2.0.1",
