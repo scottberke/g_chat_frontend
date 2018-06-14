@@ -75,7 +75,7 @@ export class Login extends Component {
     formData.append('username', username)
     formData.append('password', password)
     formData.append('grant_type', 'password')
-    fetch('/oauth/token', {
+    fetch('https::/shrouded-wave-69866.herokuapp.com/oauth/token', {
       method: 'POST',
       body: formData
       })
@@ -116,7 +116,7 @@ export class Login extends Component {
     formData.append('username', username)
     formData.append('password', password)
 
-    fetch('/api/v1/users', {
+    fetch('https::/shrouded-wave-69866.herokuapp.com/api/v1/users', {
       method: 'POST',
       body: formData
       })

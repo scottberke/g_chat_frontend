@@ -58,7 +58,7 @@ export class Window extends Component {
     var formData = new FormData();
     formData.append('user_id', newUserId)
 
-    fetch('/api/v1/chats', {
+    fetch('https::/shrouded-wave-69866.herokuapp.com/api/v1/chats', {
       method: 'POST',
       headers: header,
       body: formData
@@ -154,7 +154,7 @@ export class Window extends Component {
     });
 
 
-    fetch('/api/v1/users/index', { method: 'GET',
+    fetch('https::/shrouded-wave-69866.herokuapp.com/api/v1/users/index', { method: 'GET',
                                    headers: header
                                  })
     .then((response) => response.json())
