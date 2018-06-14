@@ -24,7 +24,7 @@ export class Login extends Component {
 
         <form>
           <div className="form-group">
-            <label for="exampleInputEmail1">Username</label>
+            <label >Username</label>
             <input type="username"
               className="form-control"
               value={ this.state.username }
@@ -33,7 +33,7 @@ export class Login extends Component {
               placeholder="Enter username"/>
           </div>
           <div className="form-group">
-            <label for="exampleInputPassword1">Password</label>
+            <label >Password</label>
             <input type="password"
               className="form-control"
               value={ this.state.password }
@@ -75,7 +75,7 @@ export class Login extends Component {
     formData.append('username', username)
     formData.append('password', password)
     formData.append('grant_type', 'password')
-    fetch('https::/shrouded-wave-69866.herokuapp.com/oauth/token', {
+    fetch('/oauth/token', {
       method: 'POST',
       body: formData
       })
@@ -116,7 +116,7 @@ export class Login extends Component {
     formData.append('username', username)
     formData.append('password', password)
 
-    fetch('https::/shrouded-wave-69866.herokuapp.com/api/v1/users', {
+    fetch('/api/v1/users', {
       method: 'POST',
       body: formData
       })
