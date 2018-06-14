@@ -1,19 +1,23 @@
 import React, { Component } from 'react';
-
 import Cable from 'actioncable';
 import { Bootstrap, Grid, Row, Col } from 'react-bootstrap';
 
 export class UserList extends Component {
   render() {
     return (
-        <div class="col-md-3">
-          <div class="panel panel-default">
+        <div className="col-md-3">
+          <div className="panel panel-default">
 
-            <h3 class="panel-heading"> User List </h3>
+            <h3 className="panel-heading"> User List </h3>
 
-            <div class="panel-body">
+            <div className="panel-body">
               <ul>
-                { this.state.currentUserList.map((user) => <li>{user.email}</li>) }
+                { this.props.users.map((user) =>
+                  <li>
+                    <a data-userid={user.id} href='#' onClick={ (event) => this.props.newChatHandler(event) }>
+                      {user.username}
+                    </a>
+                  </li>) }
               </ul>
             </div>
 
@@ -25,72 +29,27 @@ export class UserList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentChatMessage: '',
-      currentUserList: []
+
     };
   }
 
-  updateCurrentChatMessage(event) {
-    this.setState({
-      currentChatMessage: event.target.value
-    });
-  }
-
-  createSocket() {
-    let cable = Cable.createConsumer('ws://localhost:3001/cable')
-    this.chats = cable.subscriptions.create({
-      channel: 'ChatChannel'
-    }, {
-      connected : () => {},
-      received: (data) => {
-        console.log(data);
-      },
-      create: function(chatContent) {
-        this.perform('create', {
-          content: chatContent
-        });
-      }
-    })
-  }
-
-  componentWillMount() {
-    this.createSocket();
-    this.handleComponentsLoaded();
-  }
-
-  handleSendEvent(event) {
+  handleNewChat(event) {
     event.preventDefault();
-    this.chats.create(this.state.currentChatMessage);
-    this.setState({
-      currentChatMessage: ''
-    });
-  }
-
-  fetchUsersFromApi() {
-    this.setState({ currentUserList: [] })
-    fetch('/api/v1/users/index', { method: 'GET' })
+    const username = this.state.username
+    const password = this.state.password
+    var formData = new FormData();
+    formData.append('username', username)
+    formData.append('password', password)
+    formData.append('grant_type', 'password')
+    fetch('/oauth/token', {
+      method: 'POST',
+      body: formData
+      })
+    .then((response) => this.checkForLoginError(response))
     .then((response) => response.json())
-    .then((response) => this.setState({ currentUserList: response }))
-
-
-    // const users = this.state.currentUserList;
+    .then((response) => this.props.handleLogin(response))
+    .catch( error => this.handleError(error))
   }
 
 
-  listUsers() {
-    if (this.state.currentUserList.length) {
-      return this.state.currentUserList.map((user) =>
-        <li>{ user.email }</li>
-      );
-    } else {
-      ""
-    }
-  }
-
-
-
-  handleComponentsLoaded() {
-    this.fetchUsersFromApi();
-    this.listUsers();
-  }
 }
