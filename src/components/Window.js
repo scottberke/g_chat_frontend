@@ -7,9 +7,16 @@ import { Bootstrap, Grid, Row, Col } from 'react-bootstrap';
 export class Window extends Component {
   render() {
     return (
-      <div class="row">
-        <Chat />
-        <UserList />
+      <div className="row">
+        <div className="col-md-8">
+          <ul id="chat-list">
+            { this.state.openChats.map((chatId) => <Chat chatId={ chatId }  /> ) }
+          </ul>
+
+        </div>
+
+        <UserList newChatHandler={ this.newChatHandler }
+                  users={this.state.currentUserList} />
       </div>
     );
   }
@@ -18,8 +25,48 @@ export class Window extends Component {
     super(props);
     this.state = {
       currentChatMessage: '',
-      currentUserList: []
+      currentUserList: [],
+      openChats: []
     };
+    this.newChatHandler = this.newChatHandler.bind(this)
+    this.addNewChatToOpenChats = this.addNewChatToOpenChats.bind(this)
+  }
+
+  returnChatSet() {
+    var chatSet = new Set(this.state.openChats)
+  }
+
+  newChatHandler(event) {
+    event.preventDefault();
+
+    var header = new Headers({
+      'Authorization': 'Bearer ' + this.props.accessToken,
+      'access_token': this.props.accessToken
+    });
+
+    var newUserId = event.target.dataset.userid
+    var formData = new FormData();
+    formData.append('user_id', newUserId)
+
+    fetch('/api/v1/chats', {
+      method: 'POST',
+      headers: header,
+      body: formData
+      })
+    .then((response) => response.json())
+    .then((response) => this.addNewChatToOpenChats(response))
+    .catch( error => this.handleError(error))
+  }
+
+  addNewChatToOpenChats(response) {
+      var openChatsUnique = this.state.openChats
+      openChatsUnique.push(response.id)
+      openChatsUnique = [...new Set(openChatsUnique)]
+
+      this.setState({
+        openChats: openChatsUnique
+      })
+
   }
 
   updateCurrentChatMessage(event) {
@@ -60,7 +107,15 @@ export class Window extends Component {
 
   fetchUsersFromApi() {
     this.setState({ currentUserList: [] })
-    fetch('/api/v1/users/index', { method: 'GET' })
+    var header = new Headers({
+      'Authorization': 'Bearer ' + this.props.accessToken,
+      'access_token': this.props.accessToken
+    });
+
+
+    fetch('/api/v1/users/index', { method: 'GET',
+                                   headers: header
+                                 })
     .then((response) => response.json())
     .then((response) => this.setState({ currentUserList: response }))
 
