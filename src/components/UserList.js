@@ -14,7 +14,7 @@ export class UserList extends Component {
               <ul>
                 { this.props.users.map((user) =>
                   <li>
-                    <a data-userid={user.id} href='#' onClick={ (event) => this.props.newChatHandler(event) }>
+                    <a data-userid={user.id} href='#' onClick={ (event) => this.props.newChatHandler(event, user.username) }>
                       {user.username}
                     </a>
                   </li>) }
