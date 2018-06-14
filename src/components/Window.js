@@ -10,7 +10,15 @@ export class Window extends Component {
       <div className="row">
         <div className="col-md-8">
           <ul id="chat-list">
-            { this.state.openChats.map((chatId) => <Chat chatId={ chatId }  /> ) }
+            { this.state.openChats.map((chat) =>
+              <Chat chat={ chat }
+                    userId={ this.props.userId }
+                    handleClose={this.handleClose}
+                    handleSendMessage={this.handleSendMessage}
+                    messagesReceived={ this.state.messagesReceived.filter((message) =>
+                      message.chat_id == chat.chatId) }
+                      />
+                  )}
           </ul>
 
         </div>
@@ -26,17 +34,19 @@ export class Window extends Component {
     this.state = {
       currentChatMessage: '',
       currentUserList: [],
-      openChats: []
+      openChats: [],
+      messagesReceived: []
     };
     this.newChatHandler = this.newChatHandler.bind(this)
     this.addNewChatToOpenChats = this.addNewChatToOpenChats.bind(this)
+    this.handleClose = this.handleClose.bind(this)
+    this.handleSendMessage = this.handleSendMessage.bind(this)
+    this.handleSendMessage = this.handleSendMessage.bind(this)
+    this.createSocket = this.createSocket.bind(this)
   }
 
-  returnChatSet() {
-    var chatSet = new Set(this.state.openChats)
-  }
 
-  newChatHandler(event) {
+  newChatHandler(event, username) {
     event.preventDefault();
 
     var header = new Headers({
@@ -54,13 +64,24 @@ export class Window extends Component {
       body: formData
       })
     .then((response) => response.json())
-    .then((response) => this.addNewChatToOpenChats(response))
+    .then((response) => this.addNewChatToOpenChats(response, username))
     .catch( error => this.handleError(error))
   }
 
-  addNewChatToOpenChats(response) {
+  handleClose(event) {
+    event.preventDefault();
+    var chatIdToClose = Number(event.target.dataset.chatid)
+    var updatedOpenChats = this.state.openChats.filter((i) => i.chatId !== chatIdToClose)
+
+    this.setState({
+      openChats: updatedOpenChats
+    })
+
+  }
+
+  addNewChatToOpenChats(response, username) {
       var openChatsUnique = this.state.openChats
-      openChatsUnique.push(response.id)
+      openChatsUnique.push({ chatId: response.id, username: username } )
       openChatsUnique = [...new Set(openChatsUnique)]
 
       this.setState({
@@ -76,17 +97,21 @@ export class Window extends Component {
   }
 
   createSocket() {
-    let cable = Cable.createConsumer('ws://localhost:3001/cable')
+
+    var socketUrl = 'ws://localhost:3001/cable?access_token=' + this.props.accessToken
+    let cable = Cable.createConsumer(socketUrl)
     this.chats = cable.subscriptions.create({
       channel: 'ChatChannel'
     }, {
       connected : () => {},
       received: (data) => {
         console.log(data);
+        this.handleNewMessage(data)
       },
-      create: function(chatContent) {
+      create: function(body, chatId) {
         this.perform('create', {
-          content: chatContent
+          body: body,
+          chat_id: chatId,
         });
       }
     })
@@ -105,6 +130,22 @@ export class Window extends Component {
     });
   }
 
+  handleSendMessage(message, chatId) {
+    this.chats.create(message, chatId);
+  }
+
+  handleNewMessage(data) {
+    var messagesUnique = this.state.messagesReceived
+    messagesUnique.push(data)
+    messagesUnique = [...new Set(messagesUnique)]
+
+    this.setState({
+      messagesReceived: messagesUnique
+    })
+
+  }
+
+
   fetchUsersFromApi() {
     this.setState({ currentUserList: [] })
     var header = new Headers({
@@ -118,11 +159,7 @@ export class Window extends Component {
                                  })
     .then((response) => response.json())
     .then((response) => this.setState({ currentUserList: response }))
-
-
-    // const users = this.state.currentUserList;
   }
-
 
   listUsers() {
     if (this.state.currentUserList.length) {
@@ -133,8 +170,6 @@ export class Window extends Component {
       ""
     }
   }
-
-
 
   handleComponentsLoaded() {
     this.fetchUsersFromApi();
