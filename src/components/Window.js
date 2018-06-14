@@ -98,7 +98,7 @@ export class Window extends Component {
 
   createSocket() {
 
-    var socketUrl = 'ws://localhost:3001/cable?access_token=' + this.props.accessToken
+    var socketUrl = 'ws://shrouded-wave-69866.herokuapp.com/cable?access_token=' + this.props.accessToken
     let cable = Cable.createConsumer(socketUrl)
     this.chats = cable.subscriptions.create({
       channel: 'ChatChannel'
