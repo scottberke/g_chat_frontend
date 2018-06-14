@@ -1,7 +1,7 @@
-{
+/* {
   "root": "build/",
   "proxies": {
       "origin": "${API_URL}"
     }
   }
-}
+} */
