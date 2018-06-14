@@ -1,1 +1,8 @@
-{ "root": "build/", "routes": { "/**": "index.html" } }
+{
+  "root": "build/",
+  "proxies": {
+    "/": {
+      "origin": "${API_URL}"
+    }
+  }
+}
