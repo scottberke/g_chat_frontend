@@ -11,7 +11,10 @@ class App extends Component {
     super(props);
     this.state = {
       isLoggedIn: false,
-      access_token: ''
+      access_token: '',
+      userId: '',
+      username: ''
+
     };
   }
 
@@ -19,7 +22,9 @@ class App extends Component {
 
     if (this.state.isLoggedIn) {
       return (
-        <Window accessToken={ this.state.access_token } />
+        <Window accessToken={ this.state.access_token }
+                username={this.state.username}
+                userId={this.state.userId} />
       );
     } else {
       return (
@@ -40,7 +45,9 @@ class App extends Component {
       if (response.access_token) {
         this.setState({
           access_token: response.access_token,
-          isLoggedIn: true
+          isLoggedIn:   true,
+          username:     response.username,
+          userId:       response.userid
         });
       } else {
         this.renderLogin
